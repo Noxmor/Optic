@@ -67,4 +67,12 @@ namespace Optic {
 		}
 	}
 
+	void ThresholdFilter(Image& img, const float threshold)
+	{
+		for (size_t i = 0; i < img.Width * img.Height * img.Channels; i++)
+		{
+			img.Data[i] = img.Data[i] >= threshold ? 1.0f : 0.0f;
+		}
+	}
+
 }

@@ -12,6 +12,7 @@ int main(int argc, char** argv)
 	}
 
 	Optic::GrayScaleAverage(img);
+	Optic::ThresholdFilter(img, 0.5f);
 
 	Optic::SaveImage(img, "img/test.ppm");
 
