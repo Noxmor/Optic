@@ -75,4 +75,69 @@ namespace Optic {
 		}
 	}
 
+	void FlipHorizontal(Image& img)
+	{
+		float* start = &img.Data[0];
+		float* end = &img.Data[img.Width * img.Channels - img.Channels];
+
+		for (size_t y = 0; y < img.Height; y++)
+		{
+			for (size_t x = 0; x < img.Width / 2; x++)
+			{
+				const float tempRed = *start;
+				const float tempGreen = *(start + 1);
+				const float tempBlue = *(start + 2);
+
+				*start = *end;
+				*(start + 1) = *(end + 1);
+				*(start + 2) = *(end + 2);
+
+
+				*end = tempRed;
+				*(end + 1) = tempGreen;
+				*(end + 2) = tempBlue;
+
+				start += 3;
+				end -= 3;
+			}
+
+			start -= (img.Width / 2) * img.Channels;
+			start += img.Width * img.Channels;
+
+			end += (img.Width / 2) * img.Channels;
+			end += img.Width * img.Channels;
+		}
+	}
+
+	void FlipVertical(Image& img)
+	{
+		float* start = &img.Data[0];
+		float* end = &img.Data[img.Width * img.Height * img.Channels - img.Width * img.Channels];
+
+		for (size_t y = 0; y < img.Height / 2; y++)
+		{
+			for (size_t x = 0; x < img.Width; x++)
+			{
+				const float tempRed = *start;
+				const float tempGreen = *(start + 1);
+				const float tempBlue = *(start + 2);
+
+				*start = *end;
+				*(start + 1) = *(end + 1);
+				*(start + 2) = *(end + 2);
+
+
+				*end = tempRed;
+				*(end + 1) = tempGreen;
+				*(end + 2) = tempBlue;
+
+				start += 3;
+				end += 3;
+			}
+
+			end -= img.Width * img.Channels;
+			end -= img.Width * img.Channels;
+		}
+	}
+
 }
