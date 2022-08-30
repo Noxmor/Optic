@@ -17,7 +17,6 @@ namespace Optic {
 		size_t Width = 0;
 		size_t Height = 0;
 
-		ImageFormat Format = ImageFormat::None;
 		uint8_t Channels = 0;
 		float* Data = nullptr;
 	};

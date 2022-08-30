@@ -5,9 +5,8 @@
 int main(int argc, char** argv)
 {
 	Optic::Image img;
-	Optic::LoadImage(img, "img/blackbuck.ascii.ppm");
-	Optic::FlipHorizontal(img);
-	Optic::FlipVertical(img);
-	Optic::SaveImage(img, "img/test.ppm");
+	Optic::LoadImage(img, "img/image.ppm");
+	Optic::SaveImageAsPPM(img, "img/test.ppm", true);
+
 	return 0;
 }

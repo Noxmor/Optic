@@ -9,7 +9,7 @@ namespace Optic {
 
 	bool LoadImage(Image& img, const std::string& filepath)
 	{
-		std::ifstream file(filepath);
+		std::ifstream file(filepath, std::ios::binary);
 		if (!file.is_open())
 		{
 			file.close();
@@ -17,47 +17,42 @@ namespace Optic {
 		}
 
 		const std::string fileExtension = filepath.substr(filepath.find_last_of(".") + 1);
-		img.Format = StringToImageFormat(fileExtension);
+		const ImageFormat format = StringToImageFormat(fileExtension);
 
-		switch (img.Format)
+		switch (format)
 		{
 			case ImageFormat::PPM:
 			{
 				std::string version;
 				std::string maxRGB;
 
-				file >> version;
-				if (file.get() == '#')
-					while (file.get() != '\n');
+				file >> version >> img.Width >> img.Height >> maxRGB;
 
-				file >> img.Width >> img.Height >> maxRGB;
+				const float max = std::stoi(maxRGB);
+				img.Channels = 3;
+				img.Data = new float[img.Width * img.Height * img.Channels];
 
-				if (version == "P2")
+				if (version == "P3")
 				{
-					img.Channels = 1;
-					img.Data = new float[img.Width * img.Height];
-
 					std::string temp;
-					for (size_t i = 0; i < img.Width * img.Height; i++)
+					for (size_t i = 0; i < img.Width * img.Height * img.Channels; i++)
 					{
 						file >> temp;
-						img.Data[i] = std::stoi(temp) / 255.0f;
+						img.Data[i] = std::stoi(temp) / max;
 					}
 
 					file.close();
 					return true;
 				}
 
-				if (version == "P3")
+				if (version == "P6")
 				{
-					img.Channels = 3;
-					img.Data = new float[img.Width * img.Height * img.Channels];
-
-					std::string temp;
+					char temp = 0;
+					file.read(&temp, sizeof(char));
 					for (size_t i = 0; i < img.Width * img.Height * img.Channels; i++)
 					{
-						file >> temp;
-						img.Data[i] = std::stoi(temp) / 255.0f;
+						file.read(&temp, sizeof(char));
+						img.Data[i] = uint8_t(temp) / max;
 					}
 
 					file.close();
@@ -72,39 +67,49 @@ namespace Optic {
 		return false;
 	}
 
-	bool SaveImage(const Image& img, const std::string& filepath)
+	bool SaveImageAsPPM(const Image& img, const std::string& filepath, const bool binary)
 	{
-		switch (img.Format)
+		if (img.Channels != 3)
+			return false;
+		
+		std::ofstream file(filepath, std::ios::binary);
+		if (!file.is_open())
 		{
-			case ImageFormat::PPM:
-			{
-				std::ofstream file(filepath);
-				if (!file.is_open())
-				{
-					file.close();
-					return false;
-				}
-
-				file << "P3\n";
-				file << std::to_string(img.Width) + " " + std::to_string(img.Height) + "\n";
-				file << "255\n";
-
-				for (size_t i = 0; i < img.Width * img.Height * img.Channels; i++)
-				{
-					file << std::to_string(img.Data[i] * 255.0f);
-					
-					if ((i + 1) % 3 == 0)
-						file << "\n";
-					else
-						file << " ";
-				}
-
-				file.close();
-				return true;
-			}
+			file.close();
+			return false;
 		}
 
-		return false;
+		if (binary)
+		{
+			file << "P6\n";
+			file << std::to_string(img.Width) + " " + std::to_string(img.Height) + "\n";
+			file << "255\r";
+
+			for (size_t i = 0; i < img.Width * img.Height * img.Channels; i++)
+			{
+				file << uint8_t(img.Data[i] * 255.0f);
+			}
+
+			file.close();
+			return true;
+		}
+
+		file << "P3\n";
+		file << std::to_string(img.Width) + " " + std::to_string(img.Height) + "\n";
+		file << "255\n";
+
+		for (size_t i = 0; i < img.Width * img.Height * img.Channels; i++)
+		{
+			file << std::to_string(img.Data[i] * 255.0f);
+
+			if ((i + 1) % 3 == 0)
+				file << '\n';
+			else
+				file << ' ';
+		}
+
+		file.close();
+		return true;
 	}
 
 }
