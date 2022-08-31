@@ -8,15 +8,24 @@ namespace Optic {
 
 	void GrayScaleAverage(Image& img)
 	{
-		if (img.Channels < 3)
+		if (img.Channels < 2)
 			return;
 
 		for (size_t i = 0; i < img.Width * img.Height * img.Channels; i += img.Channels)
 		{
-			const float grayScaleAvg = (img.Data[i] + img.Data[i + 1] + img.Data[i + 2]) / 3.0f;
-			img.Data[i] = grayScaleAvg;
-			img.Data[i + 1] = grayScaleAvg;
-			img.Data[i + 2] = grayScaleAvg;
+			float grayScaleAvg = 0.0f;
+
+			for (size_t j = 0; j < img.Channels; j++)
+			{
+				grayScaleAvg += img.Data[i + j];
+			}
+
+			grayScaleAvg /= (float)img.Channels;
+
+			for (size_t j = 0; j < img.Channels; j++)
+			{
+				img.Data[i + j] = grayScaleAvg;
+			}
 		}
 	}
 
@@ -137,6 +146,28 @@ namespace Optic {
 
 			end -= img.Width * img.Channels;
 			end -= img.Width * img.Channels;
+		}
+	}
+
+	Image DiffMap(const Image& img0, const Image& img1)
+	{
+		Image result;
+		result.Width = std::min(img0.Width, img1.Width);
+		result.Height = std::min(img0.Height, img1.Height);
+		result.Channels = std::min(img0.Channels, img1.Channels);
+		result.Data = new float[result.Width * result.Height * result.Channels];
+
+		for (size_t y = 0; y < result.Height; y++)
+		{
+			for (size_t x = 0; x < result.Width; x++)
+			{
+				const size_t pixelIndex = y * result.Width + x;
+				
+				for (size_t i = 0; i < result.Channels; i++)
+				{
+					result.Data[pixelIndex + i] = std::abs(img0.Data[pixelIndex + i] - img1.Data[pixelIndex + i]);
+				}
+			}
 		}
 	}
 
