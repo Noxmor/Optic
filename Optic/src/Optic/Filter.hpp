@@ -8,24 +8,15 @@ namespace Optic {
 
 	void GrayScaleAverage(Image& img)
 	{
-		if (img.Channels < 2)
+		if (img.Channels < 3)
 			return;
 
 		for (size_t i = 0; i < img.Width * img.Height * img.Channels; i += img.Channels)
 		{
-			float grayScaleAvg = 0.0f;
-
-			for (size_t j = 0; j < img.Channels; j++)
-			{
-				grayScaleAvg += img.Data[i + j];
-			}
-
-			grayScaleAvg /= (float)img.Channels;
-
-			for (size_t j = 0; j < img.Channels; j++)
-			{
-				img.Data[i + j] = grayScaleAvg;
-			}
+			float grayScaleAvg = (img.Data[i] + img.Data[i + 1] + img.Data[i + 2]) / 3.0f;
+			img.Data[i] = grayScaleAvg;
+			img.Data[i + 1] = grayScaleAvg;
+			img.Data[i + 2] = grayScaleAvg;
 		}
 	}
 
