@@ -160,6 +160,8 @@ namespace Optic {
 				}
 			}
 		}
+
+		return result;
 	}
 
 }
